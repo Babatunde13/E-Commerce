@@ -20,7 +20,7 @@ function verifyToken(req, res, next) {
 router.post('/', verifyToken, imageInstance.upload.single('image'),
             productController.createProduct);
 router.get('/', verifyToken, productController.getProducts)
-router.get('/:id', productController.getProductById);
+router.get('/:id', verifyToken, productController.getProductById);
 router.delete('/:id', verifyToken, productController.removeProduct);
 router.put('/:id', verifyToken, imageInstance.upload.single('image'), productController.editProduct);
 

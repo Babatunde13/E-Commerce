@@ -18,7 +18,7 @@ function verifyToken(req, res, next) {
  
 router.post('/', verifyToken, routeController.createCategory);
 router.get('/', verifyToken, routeController.getCategories)
-router.get('/:id', routeController.getCategoryById);
+router.get('/:id', verifyToken, routeController.getCategoryById);
 router.delete('/:id', verifyToken, routeController.removeCategory);
 router.put('/:id', verifyToken, routeController.editCategory);
 

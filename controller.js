@@ -6,7 +6,6 @@ require('dotenv').config()
 const {SECRET_KEY} = process.env    
 exports.createProduct = async (req, res) => {
     jwt.verify(req.token, SECRET_KEY, async (err, user) => {
-        console.log(user)
         if (err || !user.user.isAdmin) {
             return res.status(403).json({
                 error: 'Unauthorized'

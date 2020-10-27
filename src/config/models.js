@@ -20,11 +20,7 @@ const categorySchema = new mongoose.Schema({
     name: {
         type: String
         // required: [true, "Please include the category name"]
-    },
-    products: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'products'
-    }]
+    }
 });
 
 let productSchema = new mongoose.Schema({
@@ -58,7 +54,7 @@ const Categories = mongoose.model('categories', categorySchema)
 const getProducts = async () => {
     const products = await Products.find();
     let creator = Array.from(products).map( async product => {
-        await db.User.findById(product.creator)
+        await User.findById(product.creator)
     })
     products.creator = creator
     return products;
@@ -66,7 +62,7 @@ const getProducts = async () => {
 
 const getProductById = async id => {
     const product = await Products.findById(id);
-    let creator = await db.User.findById(product.creator)
+    let creator = await User.findById(product.creator)
     product.creator = creator
     return product
 };
@@ -113,18 +109,29 @@ const getCategoryById = async id => {
     category.creator = creator
     let productIds = category.products
     let products = []
-    Array.from(productIds).forEach(async productId => {
-        let product = await Products.findById(productId)
-        products.push(product)
-    })
-    category.products = products
-    return category
+    try {
+        Array.from(productIds).forEach(async productId => {
+            let product = await Products.findById(productId)
+            products.push(product)
+        })
+        category.products = products
+        return category
+    } catch (error) {
+        return  category
+    }
 };
  
 const createNewCategory = async payload => {
-    const newProduct = await Categories.create(payload);
+    const newCategory = await Categories.create(payload);
+    if (payload.products) {
+        payload.products.forEach(async product => {
+            let pdt = await product.findOne({name: product})
+            newCategory.productIds.push(pdt._id)
+        })
+    }
+    newCategory.save()
     console.log(payload)
-    return newProduct
+    return newCategory
 };
 
 const removeCategory = async id => {
@@ -133,6 +140,7 @@ const removeCategory = async id => {
 }
 
 const editCategory = async (id, payload) => {
+    payload.productIds = payload.products
     const product = await Categories.findByIdAndUpdate(id, payload);
     return product
 }
